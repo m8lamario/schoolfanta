@@ -349,9 +349,52 @@
   .main {
     padding-top: 64px;
   }
-
   .stats {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .badge {
+    align-self: center;
+    text-align: center;
+  }
+  .title {
+    text-align: center;
+  }
+  .subtitle {
+    text-align: center;
+  }
+  .ctaRow {
+    justify-content: center;
+  }
+  .statItem:last-child {
+    display: none;
+  }
+
+  .heroPanel {
+    justify-content: center;
+  }
+  .panelCard {
+    text-align: center;
+  }
+  .sectionHeader {
+    justify-items: center;
+    text-align: center;
+  }
+  .sectionEyebrow,
+  .sectionTitle {
+    text-align: center;
+  }
+  .cardGrid {
+    justify-items: center;
+  }
+  .card {
+    text-align: center;
+  }
+  .steps li {
+    text-align: left;
+  }
+  .ctaCard {
+    align-items: center;
+    text-align: center;
   }
 }
 
@@ -360,7 +403,6 @@
   .panelCard {
     animation: none;
   }
-
   :global(*) {
     scroll-behavior: auto !important;
   }
