@@ -22,7 +22,7 @@ export default function Home() {
               spinge a giocare ogni giorno.
             </p>
             <div className={styles.ctaRow}>
-              <a className={styles.buttonPrimary} href="#start">
+              <a className={styles.buttonPrimary} href="/login">
                 Inizia ora
               </a>
               <a className={styles.buttonSecondary} href="#features">
@@ -122,7 +122,7 @@ export default function Home() {
                 Accendi il campionato della tua scuola.
               </h2>
             </div>
-            <a className={styles.buttonPrimary} href="#">
+            <a className={styles.buttonPrimary} href="/login">
               Inizia ora
             </a>
           </div>
