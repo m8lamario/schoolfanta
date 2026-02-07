@@ -403,7 +403,7 @@
   .panelCard {
     animation: none;
   }
-  :global(*) {
+  .page :global(*) {
     scroll-behavior: auto !important;
   }
 }

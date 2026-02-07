@@ -1,5 +1,26 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Auth + Database (PostgreSQL su DigitalOcean)
+
+Questo progetto usa **PostgreSQL** + **Prisma** + **NextAuth (Auth.js)** per gestire:
+- Registrazione con **email/password** (password hashata su DB)
+- Login con **Google OAuth**
+- Sessioni persistenti su DB
+
+### Variabili d'ambiente
+
+Copia `.env.example` in `.env.local` e valorizza:
+- `DATABASE_URL` (connessione Postgres DO, tipicamente con `sslmode=require`)
+- `NEXTAUTH_URL`
+- `NEXTAUTH_SECRET`
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
+
+### Prisma
+
+Dopo aver impostato `DATABASE_URL`:
+- genera il client Prisma
+- esegui le migrazioni
+
 ## Getting Started
 
 First, run the development server:

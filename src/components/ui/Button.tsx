@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { MouseEventHandler, ReactNode } from "react";
 
 import styles from "./Button.module.css";
 
@@ -13,6 +13,7 @@ type ButtonProps = {
   size?: ButtonSize;
   className?: string;
   type?: "button" | "submit" | "reset";
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 };
 
 export default function Button({
@@ -22,6 +23,7 @@ export default function Button({
   size = "md",
   className,
   type = "button",
+  onClick,
 }: ButtonProps) {
   const classes = [
     styles.button,
@@ -41,7 +43,7 @@ export default function Button({
   }
 
   return (
-    <button className={classes} type={type}>
+    <button className={classes} type={type} onClick={onClick}>
       {children}
     </button>
   );

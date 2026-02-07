@@ -1,16 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import styles from "./page.module.css";
 
 function sanitizeNext(value: string | null): string {
-  if (!value) return "/";
-  if (!value.startsWith("/")) return "/";
-  if (value.startsWith("//")) return "/";
-  if (value.includes("\\")) return "/";
+  if (!value) return "/me";
+  if (!value.startsWith("/")) return "/me";
+  if (value.startsWith("//")) return "/me";
+  if (value.includes("\\")) return "/me";
   return value;
 }
 
@@ -33,9 +34,44 @@ export default function SignupClient() {
     [searchParams]
   );
 
+  const [googleEnabled, setGoogleEnabled] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/providers", { cache: "no-store" });
+        const data = (await res.json()) as { googleEnabled?: boolean };
+        if (!cancelled) setGoogleEnabled(Boolean(data.googleEnabled));
+      } catch {
+        if (!cancelled) setGoogleEnabled(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleGoogle() {
+    if (!googleEnabled) {
+      setErrors(["Login con Google non configurato"]);
+      return;
+    }
+
+    setErrors([]);
+    setFieldErrors({});
+    setIsSubmitting(true);
+    try {
+      await signIn("google", { callbackUrl: nextPath });
+    } catch (err) {
+      setErrors([err instanceof Error ? err.message : "Errore imprevisto"]);
+      setIsSubmitting(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,6 +80,8 @@ export default function SignupClient() {
     setIsSubmitting(true);
 
     const form = new FormData(e.currentTarget);
+    const firstName = String(form.get("firstName") ?? "").trim();
+    const lastName = String(form.get("lastName") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
     const emailConfirm = String(form.get("emailConfirm") ?? "").trim();
     const password = String(form.get("password") ?? "");
@@ -85,23 +123,47 @@ export default function SignupClient() {
     }
 
     try {
-      // Demo-only: usa lo stesso endpoint di login per impostare il cookie.
-      const res = await fetch("/api/auth/login", {
+      const signupRes = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ session: "demo" }),
+        body: JSON.stringify({
+          email,
+          password,
+          firstName: firstName || undefined,
+          lastName: lastName || undefined,
+        }),
       });
 
-      if (!res.ok) {
-        setErrors(["Registrazione fallita"]);
+      if (!signupRes.ok) {
+        if (signupRes.status === 409) {
+          setErrors(["Esiste gia un account con questa email"]);
+          setFieldErrors({ email: true, emailConfirm: true });
+          return;
+        }
+
+        const data = (await signupRes.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        setErrors([data?.error ?? "Registrazione fallita"]);
         return;
       }
 
-      router.replace(nextPath);
+      const loginRes = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+        callbackUrl: nextPath,
+      });
+
+      if (!loginRes || loginRes.error) {
+        setErrors(["Account creato, ma accesso fallito. Prova a fare login."]);
+        router.replace("/login");
+        return;
+      }
+
+      router.replace(loginRes.url ?? nextPath);
     } catch (err) {
-      setErrors([
-        err instanceof Error ? err.message : "Errore imprevisto",
-      ]);
+      setErrors([err instanceof Error ? err.message : "Errore imprevisto"]);
     } finally {
       setIsSubmitting(false);
     }
@@ -130,12 +192,18 @@ export default function SignupClient() {
 
           <div className={styles.authStack}>
             <Button
-              href={nextPath === "/" ? "/onboarding/school" : nextPath}
+              onClick={handleGoogle}
               size="lg"
               className={styles.googleButton}
             >
               Continua con Google
             </Button>
+
+            {!googleEnabled ? (
+              <p className={styles.loginHint}>
+                Google non e configurato (imposta GOOGLE_CLIENT_ID/SECRET).
+              </p>
+            ) : null}
 
             <div className={styles.divider}>
               <span>Oppure</span>

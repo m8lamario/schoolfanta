@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-
-const SESSION_COOKIE_NAME = "session";
+import { getToken } from "next-auth/jwt";
 
 const PUBLIC_PATHS = new Set<string>([
   "/", // home
@@ -18,15 +17,18 @@ function sanitizeNext(value: string | null): string | null {
   return value;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   // Allow public pages.
   if (PUBLIC_PATHS.has(pathname)) {
-    // Optional UX: if already authenticated and user visits /start, send them away.
     if (pathname === "/login") {
-      const session = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-      if (session) {
+      const token = await getToken({
+        req: request,
+        secret: process.env.NEXTAUTH_SECRET,
+      });
+      if (token) {
+        console.log("[middleware]", { hasToken: Boolean(token) })
         const nextParam = sanitizeNext(request.nextUrl.searchParams.get("next"));
         const url = request.nextUrl.clone();
         url.pathname = nextParam ?? "/";
@@ -38,8 +40,19 @@ export function middleware(request: NextRequest) {
   }
 
   // Require auth for everything else matched by config.
-  const session = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  if (session) return NextResponse.next();
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[middleware]", {
+      path: `${pathname}${search}`,
+      hasToken: Boolean(token),
+    });
+  }
+
+  if (token) return NextResponse.next();
 
   const loginUrl = request.nextUrl.clone();
   loginUrl.pathname = "/login";
