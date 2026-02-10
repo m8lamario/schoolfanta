@@ -147,7 +147,6 @@ export const authOptions: NextAuthOptions = {
       }
     : undefined,
   debug: isDev,
-  trustHost: true,
   cookies: {
     sessionToken: {
       name: isDev ? "next-auth.session-token" : "__Secure-next-auth.session-token",
