@@ -23,18 +23,27 @@ export async function middleware(request: NextRequest) {
   // Allow public pages.
   if (PUBLIC_PATHS.has(pathname)) {
     if (pathname === "/login") {
+      // Se NextAuth ci ha già mandato qui con callbackUrl, non interferire.
+      // (Evitano loop/confusione tra next/callbackUrl)
+      const hasCallbackUrl = request.nextUrl.searchParams.has("callbackUrl");
+
       const token = await getToken({
         req: request,
         secret: process.env.NEXTAUTH_SECRET,
       });
+
       if (token) {
-        console.log("[middleware]", { hasToken: Boolean(token) })
-        const nextParam = sanitizeNext(request.nextUrl.searchParams.get("next"));
+        const raw =
+          request.nextUrl.searchParams.get("callbackUrl") ??
+          request.nextUrl.searchParams.get("next");
+        const nextParam = sanitizeNext(raw);
         const url = request.nextUrl.clone();
         url.pathname = nextParam ?? "/";
         url.search = "";
         return NextResponse.redirect(url);
       }
+
+      if (hasCallbackUrl) return NextResponse.next();
     }
     return NextResponse.next();
   }
@@ -56,7 +65,8 @@ export async function middleware(request: NextRequest) {
 
   const loginUrl = request.nextUrl.clone();
   loginUrl.pathname = "/login";
-  loginUrl.searchParams.set("next", `${pathname}${search}`);
+  // usa callbackUrl (standard NextAuth) e passala relativa
+  loginUrl.searchParams.set("callbackUrl", `${pathname}${search}`);
 
   return NextResponse.redirect(loginUrl);
 }

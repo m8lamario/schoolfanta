@@ -8,7 +8,7 @@ export default async function MePage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/login?next=/me");
+    redirect("/login?callbackUrl=/me");
   }
 
   return <MeClient session={session} />;

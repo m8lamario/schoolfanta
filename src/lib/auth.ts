@@ -14,6 +14,12 @@ function hasGoogleEnv() {
 
 const isDev = process.env.NODE_ENV !== "production";
 
+if (isDev && !process.env.NEXTAUTH_URL) {
+  // In dev NextAuth usa NEXTAUTH_URL per validare callback/redirect.
+  // Se manca, alcuni setup (proxy/IDE) possono finire in redirect loop.
+  process.env.NEXTAUTH_URL = "http://localhost:3000";
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   // JWT strategy works best with middleware + getToken.
@@ -21,6 +27,7 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   providers: [
     ...(hasGoogleEnv()
@@ -45,69 +52,31 @@ export const authOptions: NextAuthOptions = {
         const password =
           typeof credentials?.password === "string" ? credentials.password : "";
 
-        if (isDev) {
-          console.log("[auth][credentials][authorize]", {
-            hasEmail: Boolean(email),
-            hasPassword: Boolean(password),
-          });
-        }
-
         if (!email || !password) return null;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        try {
+          const user = await prisma.user.findUnique({ where: { email } });
+          if (!user?.passwordHash) return null;
 
-        if (isDev) {
-          console.log("[auth][credentials][authorize] user lookup", {
-            email,
-            found: Boolean(user),
-            hasPasswordHash: Boolean(user?.passwordHash),
-          });
+          const ok = await compare(password, user.passwordHash);
+          if (!ok) return null;
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name ?? undefined,
+            image: user.image ?? undefined,
+          };
+        } catch (error) {
+          console.error("[auth] credentials authorize error", error);
+          throw error;
         }
-
-        if (!user?.passwordHash) return null;
-
-        const ok = await compare(password, user.passwordHash);
-
-        if (isDev) {
-          console.log("[auth][credentials][authorize] password match", { ok });
-        }
-
-        if (!ok) return null;
-
-        const safeUser = {
-          id: user.id,
-          email: user.email,
-          name: user.name ?? undefined,
-          image: user.image ?? undefined,
-        };
-
-        if (isDev) {
-          console.log("[auth][credentials][authorize] success", {
-            id: safeUser.id,
-            email: safeUser.email,
-          });
-        }
-
-        return safeUser;
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account, trigger }) {
-      if (isDev) {
-        console.log("[auth][callback][jwt]", {
-          trigger,
-          hasUser: Boolean(user),
-          provider: account?.provider,
-          sub: token?.sub,
-        });
-      }
-
-      // Ensure the user id ends up in token.sub for credentials flows.
-      if (user?.id && !token.sub) {
-        token.sub = user.id;
-      }
-
+    async jwt({ token, user }) {
+      if (user?.id && !token.sub) token.sub = user.id;
       return token;
     },
     async session({ session, token, user }) {
@@ -116,47 +85,13 @@ export const authOptions: NextAuthOptions = {
           (typeof token?.sub === "string" ? token.sub : undefined) ??
           (user?.id ?? undefined);
       }
-
-      if (isDev) {
-        console.log("[auth][callback][session]", {
-          hasSession: Boolean(session),
-          userId: (session.user as { id?: string } | undefined)?.id,
-          email: session.user?.email,
-          tokenSub: token?.sub,
-        });
-      }
-
       return session;
     },
   },
-  events: isDev
-    ? {
-        async signIn({ user, account, isNewUser }) {
-          console.log("[auth][event][signIn]", {
-            userId: user?.id,
-            provider: account?.provider,
-            isNewUser,
-          });
-        },
-        async signOut({ token, session }) {
-          console.log("[auth][event][signOut]", {
-            tokenSub: token?.sub,
-            hasSession: Boolean(session),
-          });
-        },
-      }
-    : undefined,
+  events: undefined,
   debug: isDev,
-  cookies: {
-    sessionToken: {
-      name: isDev ? "next-auth.session-token" : "__Secure-next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: !isDev,
-      },
-    },
-  },
+  // NOTE: next-auth@4 non supporta `trustHost` / `useSecureCookies` (sono v5).
+  // Lasciamo che next-auth gestisca host e cookie in modo standard.
   secret: process.env.NEXTAUTH_SECRET,
+  logger: undefined,
 };
