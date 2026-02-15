@@ -102,11 +102,31 @@ export default function StartClient() {
     const err = searchParams.get("error");
     if (!err) return null;
 
-    return err === "CredentialsSignin"
-      ? "Email o password non valide."
-      : err === "OAuthAccountNotLinked"
-        ? "Questo account Google è già collegato a un altro login."
-        : `Errore login: ${err}`;
+    switch (err) {
+      case "CredentialsSignin":
+        return "Email o password non valide.";
+      case "OAuthAccountNotLinked":
+        return "Questo account Google è già collegato a un altro login.";
+      case "InvalidVerificationLink":
+        return "Link di verifica non valido.";
+      case "InvalidVerificationToken":
+        return "Token di verifica non valido o già utilizzato.";
+      case "VerificationTokenExpired":
+        return "Il link di verifica è scaduto. Richiedi un nuovo invio dal tuo profilo.";
+      case "UserNotFound":
+        return "Utente non trovato.";
+      case "VerificationFailed":
+        return "Errore durante la verifica. Riprova più tardi.";
+      default:
+        return `Errore login: ${err}`;
+    }
+  }, [searchParams]);
+
+  const successMessage = useMemo(() => {
+    if (searchParams.get("verified") === "true") {
+      return "✓ Email verificata con successo! Ora puoi accedere.";
+    }
+    return null;
   }, [searchParams]);
 
   const errorToShow = error ?? errorFromQuery;
@@ -248,6 +268,7 @@ export default function StartClient() {
               </Button>
 
               {errorToShow ? <p className={styles.loginHint}>{errorToShow}</p> : null}
+              {successMessage ? <p className={styles.successHint}>{successMessage}</p> : null}
             </form>
 
             <p className={styles.loginHint}>

@@ -189,6 +189,17 @@ button.googleButton:disabled {
   text-decoration: none;
 }
 
+.successHint {
+  text-align: center;
+  font-size: 13px;
+  color: #7cdeaa;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(80, 200, 120, 0.12);
+  border: 1px solid rgba(80, 200, 120, 0.35);
+}
+
 @media (min-width: 720px) {
   .main {
     padding-top: 96px;
