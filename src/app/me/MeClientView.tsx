@@ -325,7 +325,7 @@ export default function MeClientView({ session: _session }: { session: Session }
         )}
 
         {/* Profile completion progress */}
-        <Card className={styles.card}>
+        <Card className={`${styles.card} ${styles.cardFullWidth}`}>
           <div className={styles.progressSection}>
             <div className={styles.progressHeader}>
               <span className={styles.progressLabel}>Completamento profilo</span>

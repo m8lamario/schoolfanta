@@ -43,6 +43,7 @@
   padding: 72px 20px 96px;
   max-width: 600px;
   margin: 0 auto;
+  grid-template-columns: 1fr;
 }
 
 .header {
@@ -72,6 +73,10 @@
 .card {
   display: grid;
   gap: 24px;
+}
+
+.cardFullWidth {
+  grid-column: 1 / -1;
 }
 
 .cardHeader h2 {
@@ -347,6 +352,7 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .submitButton {
@@ -459,6 +465,36 @@
 @media (min-width: 720px) {
   .main {
     padding-top: 96px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main {
+    max-width: 1100px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 32px;
+    padding: 64px 40px 0px;
+  }
+
+  .header {
+    grid-column: 1 / -1;
+  }
+
+  .warningBox {
+    grid-column: 1 / -1;
+  }
+
+  .actions {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1280px) {
+  .main {
+    max-width: 1200px;
+    gap: 28px 40px;
+    padding: 72px 48px 0px;
   }
 }
 
