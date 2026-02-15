@@ -93,5 +93,17 @@ export const authOptions: NextAuthOptions = {
   // NOTE: next-auth@4 non supporta `trustHost` / `useSecureCookies` (sono v5).
   // Lasciamo che next-auth gestisca host e cookie in modo standard.
   secret: process.env.NEXTAUTH_SECRET,
-  logger: undefined,
+  logger: isDev
+    ? {
+        error(code, metadata) {
+          console.error("[nextauth][error]", code, metadata);
+        },
+        warn(code) {
+          console.warn("[nextauth][warn]", code);
+        },
+        debug(code, metadata) {
+          console.debug("[nextauth][debug]", code, metadata);
+        },
+      }
+    : undefined,
 };

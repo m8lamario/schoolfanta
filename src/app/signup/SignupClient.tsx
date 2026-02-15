@@ -44,8 +44,8 @@ export default function SignupClient() {
     (async () => {
       try {
         const res = await fetch("/api/auth/providers", { cache: "no-store" });
-        const data = (await res.json()) as { googleEnabled?: boolean };
-        if (!cancelled) setGoogleEnabled(Boolean(data.googleEnabled));
+        const data = (await res.json()) as Record<string, { id: string }>;
+        if (!cancelled) setGoogleEnabled(Boolean(data.google));
       } catch {
         if (!cancelled) setGoogleEnabled(false);
       }
