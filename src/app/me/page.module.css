@@ -462,6 +462,89 @@
   font-size: 14px;
 }
 
+/* CTA Card - Inizia subito */
+.ctaCard {
+  background: linear-gradient(135deg, rgba(110, 164, 255, 0.15), rgba(155, 107, 255, 0.15));
+  border: 1px solid rgba(110, 164, 255, 0.3);
+}
+
+.ctaCardDisabled {
+  background: linear-gradient(135deg, rgba(214, 220, 226, 0.08), rgba(214, 220, 226, 0.05));
+  border: 1px solid rgba(214, 220, 226, 0.15);
+}
+
+.ctaContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+
+.ctaText {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ctaTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(90deg, #6ea4ff, #9b6bff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ctaCardDisabled .ctaTitle {
+  background: none;
+  -webkit-text-fill-color: rgba(214, 220, 226, 0.7);
+  color: rgba(214, 220, 226, 0.7);
+}
+
+.ctaDescription {
+  font-size: 15px;
+  color: rgba(214, 220, 226, 0.85);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ctaCardDisabled .ctaDescription {
+  color: rgba(214, 220, 226, 0.6);
+}
+
+.ctaButton {
+  min-width: 180px;
+}
+
+.ctaButtonDisabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: rgba(214, 220, 226, 0.1);
+  border: 1px solid rgba(214, 220, 226, 0.15);
+  color: rgba(214, 220, 226, 0.4);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: not-allowed;
+}
+
+@media (min-width: 720px) {
+  .ctaContent {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .ctaText {
+    flex: 1;
+  }
+}
+
 @media (min-width: 720px) {
   .main {
     padding-top: 96px;
@@ -473,7 +556,7 @@
     max-width: 1100px;
     grid-template-columns: repeat(2, 1fr);
     gap: 24px 32px;
-    padding: 64px 40px 0px;
+    padding: 64px 40px 64px;
   }
 
   .header {
@@ -488,13 +571,22 @@
     grid-column: 1 / -1;
     justify-content: center;
   }
+
+  /* Dynamic card spanning based on visible cards count */
+  .cardSpanFull {
+    grid-column: 1 / -1;
+  }
+
+  .cardSpanHalf {
+    grid-column: span 1;
+  }
 }
 
 @media (min-width: 1280px) {
   .main {
     max-width: 1200px;
     gap: 28px 40px;
-    padding: 72px 48px 0px;
+    padding: 72px 48px 72px;
   }
 }
 

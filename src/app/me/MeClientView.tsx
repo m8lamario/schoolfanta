@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import type { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 
@@ -30,10 +31,19 @@ function isStrongPassword(value: string): boolean {
   );
 }
 
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export default function MeClientView({ session: _session }: { session: Session }) {
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // URL params for email change feedback
+  const emailSuccessParam = searchParams.get("emailSuccess");
+  const emailErrorParam = searchParams.get("emailError");
 
   // Profile form state
   const [formData, setFormData] = useState({
@@ -44,6 +54,13 @@ export default function MeClientView({ session: _session }: { session: Session }
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Email form state
+  const [emailFormData, setEmailFormData] = useState({ email: "" });
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [forceShowEditEmail, setForceShowEditEmail] = useState(false);
 
   // Password form state
   const [passwordData, setPasswordData] = useState({
@@ -76,6 +93,7 @@ export default function MeClientView({ session: _session }: { session: Session }
         firstName: data.firstName ?? "",
         lastName: data.lastName ?? "",
       });
+      setEmailFormData({ email: data.email ?? "" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Errore imprevisto");
     } finally {
@@ -86,6 +104,16 @@ export default function MeClientView({ session: _session }: { session: Session }
   useEffect(() => {
     fetchProfile();
   }, [fetchProfile]);
+
+  // Clear URL params after showing message
+  useEffect(() => {
+    if (emailSuccessParam || emailErrorParam) {
+      const timer = setTimeout(() => {
+        window.history.replaceState({}, "", "/me");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [emailSuccessParam, emailErrorParam]);
 
   // Calculate profile completion
   const completionItems = profile
@@ -109,10 +137,38 @@ export default function MeClientView({ session: _session }: { session: Session }
     : false;
   const showEditProfileSection = !isProfileComplete || forceShowEditProfile;
 
+  // Determine if email editing section should be visible
+  const showEditEmailSection = forceShowEditEmail;
+
   // Determine if password section should be visible (only for Google OAuth users)
   const canSetPassword = profile?.hasGoogleAccount ?? false;
   const showSetPasswordSection =
     canSetPassword && (!profile?.hasPassword || forceShowEditPassword);
+
+  // Calculate visible cards count and determine CSS classes for responsive grid layout
+  // Cards: 1) Profile data, 2) Edit profile, 3) Edit email, 4) Set password
+  const visibleEditableCards = [showEditProfileSection, showEditEmailSection, showSetPasswordSection].filter(Boolean).length;
+  // Total cards (always include profile data card = 1 + editable cards)
+  const totalContentCards = 1 + visibleEditableCards;
+
+  // Determine card span classes based on total visible cards
+  // - If even number: each card takes half width
+  // - If odd number: first card takes full width, rest take half
+  const getCardSpanClass = (cardIndex: number): string => {
+    if (totalContentCards === 1) {
+      return styles.cardSpanFull;
+    }
+
+    const isOdd = totalContentCards % 2 !== 0;
+
+    if (isOdd) {
+      // Odd: first card full width, others half
+      return cardIndex === 0 ? styles.cardSpanFull : styles.cardSpanHalf;
+    } else {
+      // Even: all cards half width
+      return styles.cardSpanHalf;
+    }
+  };
 
   async function handleProfileSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -156,6 +212,54 @@ export default function MeClientView({ session: _session }: { session: Session }
       setSaveError(err instanceof Error ? err.message : "Errore imprevisto");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleEmailSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setEmailSaving(true);
+    setEmailError(null);
+    setEmailSuccess(false);
+
+    const newEmail = emailFormData.email.trim().toLowerCase();
+
+    // Validation
+    if (!newEmail) {
+      setEmailError("Inserisci un indirizzo email");
+      setEmailSaving(false);
+      return;
+    }
+
+    if (!isValidEmail(newEmail)) {
+      setEmailError("Formato email non valido");
+      setEmailSaving(false);
+      return;
+    }
+
+    if (newEmail === profile?.email?.toLowerCase()) {
+      setEmailError("La nuova email è uguale a quella attuale");
+      setEmailSaving(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/me/email", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: newEmail }),
+      });
+
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(data?.error ?? "Errore nell'invio della richiesta");
+      }
+
+      setEmailSuccess(true);
+      // Non chiudiamo la sezione, l'utente deve confermare via email
+    } catch (err) {
+      setEmailError(err instanceof Error ? err.message : "Errore imprevisto");
+    } finally {
+      setEmailSaving(false);
     }
   }
 
@@ -351,8 +455,40 @@ export default function MeClientView({ session: _session }: { session: Session }
           </div>
         </Card>
 
+        {/* Call to action - always visible, different state based on completion */}
+        <Card className={`${styles.card} ${styles.cardFullWidth} ${styles.ctaCard} ${completionPercent < 100 ? styles.ctaCardDisabled : ""}`}>
+          <div className={styles.ctaContent}>
+            <div className={styles.ctaText}>
+              {completionPercent === 100 ? (
+                <>
+                  <h2 className={styles.ctaTitle}>🎉 Profilo completo!</h2>
+                  <p className={styles.ctaDescription}>
+                    Hai completato tutti i dati del tuo profilo. Ora sei pronto per iniziare a giocare!
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className={styles.ctaTitle}>🚀 Quasi pronto!</h2>
+                  <p className={styles.ctaDescription}>
+                    Completa il tuo profilo al 100% per sbloccare tutte le funzionalità e iniziare a giocare.
+                  </p>
+                </>
+              )}
+            </div>
+            {completionPercent === 100 ? (
+              <Button href="/play" className={styles.ctaButton}>
+                Inizia subito
+              </Button>
+            ) : (
+              <div className={styles.ctaButtonDisabled}>
+                Inizia subito
+              </div>
+            )}
+          </div>
+        </Card>
+
         {/* Profile data card */}
-        <Card className={styles.card}>
+        <Card className={`${styles.card} ${getCardSpanClass(0)}`}>
           <div className={styles.section}>
             <h2 className={styles.sectionTitle}>Dati account</h2>
             <div className={styles.profileGrid}>
@@ -412,9 +548,17 @@ export default function MeClientView({ session: _session }: { session: Session }
 
         {/* Edit profile form - shown if incomplete OR force shown */}
         {showEditProfileSection && (
-          <Card className={styles.card}>
+          <Card className={`${styles.card} ${getCardSpanClass(1)}`}>
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>Modifica profilo</h2>
+
+              <div className={styles.infoBox}>
+                <strong>👤 I tuoi dati</strong>
+                <p>
+                  Personalizza il tuo profilo inserendo nome e cognome.
+                  Questi dati saranno visibili agli altri utenti nelle classifiche.
+                </p>
+              </div>
 
               {saveSuccess && (
                 <div className={styles.successBox}>
@@ -473,22 +617,126 @@ export default function MeClientView({ session: _session }: { session: Session }
                   </label>
                 </div>
 
-                {!isProfileComplete && (
-                  <div className={styles.infoBox}>
-                    <strong>💡 Punti extra</strong>
-                    <p>
-                      Completare nome e cognome ti fa guadagnare punti extra per il
-                      completamento del profilo!
-                    </p>
-                  </div>
-                )}
-
                 <button
                   className={styles.submitButton}
                   type="submit"
                   disabled={saving}
                 >
                   {saving ? "Salvataggio..." : "Salva modifiche"}
+                </button>
+
+                {isProfileComplete && (
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={() => {
+                      setForceShowEditProfile(false);
+                      setSaveSuccess(false);
+                      setSaveError(null);
+                      setFormData({
+                        name: profile?.name ?? "",
+                        firstName: profile?.firstName ?? "",
+                        lastName: profile?.lastName ?? "",
+                      });
+                    }}
+                  >
+                    Annulla
+                  </button>
+                )}
+              </form>
+            </div>
+          </Card>
+        )}
+
+        {/* Edit email section */}
+        {showEditEmailSection && (
+          <Card className={`${styles.card} ${getCardSpanClass(2)}`}>
+            <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>Modifica email</h2>
+
+              {/* URL param feedback */}
+              {emailSuccessParam && (
+                <div className={styles.successBox}>
+                  <strong>✓ Successo</strong>
+                  <p>{emailSuccessParam}</p>
+                </div>
+              )}
+
+              {emailErrorParam && (
+                <div className={styles.errorBox}>
+                  <strong>Errore</strong>
+                  <p>{emailErrorParam}</p>
+                </div>
+              )}
+
+              {emailSuccess && (
+                <div className={styles.successBox}>
+                  <strong>✓ Email di verifica inviata</strong>
+                  <p>
+                    Abbiamo inviato un link di conferma a <strong>{emailFormData.email}</strong>.
+                    Clicca sul link per completare il cambio email.
+                  </p>
+                </div>
+              )}
+
+              {emailError && (
+                <div className={styles.errorBox}>
+                  <strong>Errore</strong>
+                  <p>{emailError}</p>
+                </div>
+              )}
+
+              <div className={styles.infoBox}>
+                <strong>📧 Come funziona</strong>
+                <p>
+                  Inserisci il nuovo indirizzo email. Ti invieremo un link di verifica
+                  al nuovo indirizzo. La modifica sarà effettiva solo dopo aver cliccato
+                  sul link.
+                </p>
+              </div>
+
+              <form className={styles.form} onSubmit={handleEmailSubmit}>
+                <label className={styles.label}>
+                  Email attuale
+                  <input
+                    className={styles.input}
+                    type="email"
+                    value={profile?.email ?? ""}
+                    disabled
+                  />
+                </label>
+
+                <label className={styles.label}>
+                  Nuova email
+                  <input
+                    className={`${styles.input} ${emailError ? styles.inputError : ""}`}
+                    type="email"
+                    value={emailFormData.email}
+                    onChange={(e) => setEmailFormData({ email: e.target.value })}
+                    placeholder="nuova@email.com"
+                    autoComplete="email"
+                  />
+                </label>
+
+                <button
+                  className={styles.submitButton}
+                  type="submit"
+                  disabled={emailSaving || emailSuccess}
+                >
+                  {emailSaving ? "Invio in corso..." : "Invia link di verifica"}
+                </button>
+
+                <button
+                  type="button"
+                  className={styles.secondaryButton}
+                  onClick={() => {
+                    setForceShowEditEmail(false);
+                    setEmailSuccess(false);
+                    setEmailError(null);
+                    setEmailFormData({ email: profile?.email ?? "" });
+                  }}
+                >
+                  Annulla
                 </button>
               </form>
             </div>
@@ -497,27 +745,20 @@ export default function MeClientView({ session: _session }: { session: Session }
 
         {/* Set password section - only for Google OAuth users, hidden when complete unless forced */}
         {showSetPasswordSection && (
-          <Card className={styles.card}>
+          <Card className={`${styles.card} ${getCardSpanClass(3)}`}>
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>
                 {profile.hasPassword ? "Modifica password" : "Imposta password"}
               </h2>
 
-              {!profile.hasPassword && (
-                <div className={styles.infoBox}>
-                  <strong>🔐 Sicurezza account</strong>
-                  <p>
-                    Hai effettuato la registrazione con Google, quindi attualmente puoi
-                    accedere solo tramite Google. Ti consigliamo fortemente di impostare
-                    una password per:
-                  </p>
-                  <ul>
-                    <li>Avere un metodo di accesso alternativo</li>
-                    <li>Maggiore sicurezza del tuo account</li>
-                    <li>Guadagnare punti extra per il completamento profilo</li>
-                  </ul>
-                </div>
-              )}
+              <div className={styles.infoBox}>
+                <strong>🔐 Sicurezza account</strong>
+                <p>
+                  {profile.hasPassword
+                    ? "Modifica la tua password per mantenere sicuro il tuo account. Scegli una password forte e unica."
+                    : "Imposta una password per avere un metodo di accesso alternativo a Google e maggiore sicurezza."}
+                </p>
+              </div>
 
               {passwordSuccess && (
                 <div className={styles.successBox}>
@@ -583,6 +824,21 @@ export default function MeClientView({ session: _session }: { session: Session }
                       ? "Modifica password"
                       : "Imposta password"}
                 </button>
+
+                {profile.hasPassword && (
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={() => {
+                      setForceShowEditPassword(false);
+                      setPasswordSuccess(false);
+                      setPasswordErrors([]);
+                      setPasswordData({ password: "", confirmPassword: "" });
+                    }}
+                  >
+                    Annulla
+                  </button>
+                )}
               </form>
             </div>
           </Card>
@@ -602,6 +858,17 @@ export default function MeClientView({ session: _session }: { session: Session }
               }}
             >
               Modifica dati
+            </Button>
+          )}
+          {!forceShowEditEmail && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setForceShowEditEmail(true);
+                setEmailFormData({ email: profile?.email ?? "" });
+              }}
+            >
+              Modifica email
             </Button>
           )}
           <Button
