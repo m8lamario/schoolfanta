@@ -9,7 +9,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NextAuth/Prisma Adapter models (standard)
+// ─── AUTH.JS MODELS ───
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -24,8 +25,17 @@ model User {
   firstName     String?
   lastName      String?
 
+  // Game fields
+  schoolId      String?
+  school        School?   @relation(fields: [schoolId], references: [id])
+  budget        Int       @default(100)
+  hasTeam       Boolean   @default(false)
+
   accounts      Account[]
   sessions      Session[]
+  fantasyTeam   FantasyTeam?
+  createdLeagues League[] @relation("LeagueCreator")
+  leagueMemberships LeagueMember[]
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -66,3 +76,130 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+// ─── GAME MODELS ───
+
+model School {
+  id      String       @id @default(cuid())
+  name    String       @unique
+  players RealPlayer[]
+  users   User[]
+}
+
+model RealPlayer {
+  id       String   @id @default(cuid())
+  name     String
+  role     String   // GK, DEF, MID, ATT
+  schoolId String
+  school   School   @relation(fields: [schoolId], references: [id])
+  value    Int
+
+  fantasyPlayers FantasyPlayer[]
+  lineupPlayers  LineupPlayer[]
+  votes          PlayerVote[]
+}
+
+model FantasyTeam {
+  id     String @id @default(cuid())
+  name   String
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  players FantasyPlayer[]
+  lineups Lineup[]
+  scores  MatchdayScore[]
+
+  createdAt DateTime @default(now())
+}
+
+model FantasyPlayer {
+  id            String      @id @default(cuid())
+  fantasyTeamId String
+  fantasyTeam   FantasyTeam @relation(fields: [fantasyTeamId], references: [id], onDelete: Cascade)
+  realPlayerId  String
+  realPlayer    RealPlayer  @relation(fields: [realPlayerId], references: [id])
+}
+
+model Matchday {
+  id       String   @id @default(cuid())
+  number   Int      @unique
+  deadline DateTime
+  status   String   @default("open") // open | locked | scored
+
+  lineups Lineup[]
+  scores  MatchdayScore[]
+  votes   PlayerVote[]
+}
+
+model Lineup {
+  id            String      @id @default(cuid())
+  fantasyTeamId String
+  fantasyTeam   FantasyTeam @relation(fields: [fantasyTeamId], references: [id], onDelete: Cascade)
+  matchdayId    String
+  matchday      Matchday    @relation(fields: [matchdayId], references: [id])
+
+  players LineupPlayer[]
+
+  @@unique([fantasyTeamId, matchdayId])
+}
+
+model LineupPlayer {
+  id           String     @id @default(cuid())
+  lineupId     String
+  lineup       Lineup     @relation(fields: [lineupId], references: [id], onDelete: Cascade)
+  realPlayerId String
+  realPlayer   RealPlayer @relation(fields: [realPlayerId], references: [id])
+  isStarter    Boolean    @default(false)
+
+  @@unique([lineupId, realPlayerId])
+}
+
+model PlayerVote {
+  id           String     @id @default(cuid())
+  realPlayerId String
+  realPlayer   RealPlayer @relation(fields: [realPlayerId], references: [id])
+  matchdayId   String
+  matchday     Matchday   @relation(fields: [matchdayId], references: [id])
+  vote         Float
+  goals        Int        @default(0)
+  assists      Int        @default(0)
+  yellowCards  Int        @default(0)
+  redCards     Int        @default(0)
+
+  @@unique([realPlayerId, matchdayId])
+}
+
+model MatchdayScore {
+  id            String      @id @default(cuid())
+  fantasyTeamId String
+  fantasyTeam   FantasyTeam @relation(fields: [fantasyTeamId], references: [id], onDelete: Cascade)
+  matchdayId    String
+  matchday      Matchday    @relation(fields: [matchdayId], references: [id])
+  points        Float
+
+  @@unique([fantasyTeamId, matchdayId])
+}
+
+model League {
+  id         String   @id @default(cuid())
+  name       String
+  isGlobal   Boolean  @default(false)
+  inviteCode String?  @unique
+  creatorId  String
+  creator    User     @relation("LeagueCreator", fields: [creatorId], references: [id])
+
+  members LeagueMember[]
+
+  createdAt DateTime @default(now())
+}
+
+model LeagueMember {
+  id       String @id @default(cuid())
+  leagueId String
+  league   League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([leagueId, userId])
+}
+

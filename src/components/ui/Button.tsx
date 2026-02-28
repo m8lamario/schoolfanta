@@ -13,6 +13,7 @@ type ButtonProps = {
   size?: ButtonSize;
   className?: string;
   type?: "button" | "submit" | "reset";
+  disabled?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
 };
 
@@ -23,12 +24,14 @@ export default function Button({
   size = "md",
   className,
   type = "button",
+  disabled = false,
   onClick,
 }: ButtonProps) {
   const classes = [
     styles.button,
     styles[variant],
     styles[size],
+    disabled ? styles.disabled : undefined,
     className,
   ]
     .filter(Boolean)
@@ -43,7 +46,7 @@ export default function Button({
   }
 
   return (
-    <button className={classes} type={type} onClick={onClick}>
+    <button className={classes} type={type} disabled={disabled} onClick={onClick}>
       {children}
     </button>
   );

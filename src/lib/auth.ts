@@ -75,8 +75,18 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user?.id && !token.sub) token.sub = user.id;
+
+      // Load hasTeam from DB on sign-in or when explicitly updated
+      if (user?.id || trigger === "update") {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: (user?.id ?? token.sub) as string },
+          select: { hasTeam: true },
+        });
+        token.hasTeam = dbUser?.hasTeam ?? false;
+      }
+
       return token;
     },
     async session({ session, token, user }) {
@@ -84,6 +94,8 @@ export const authOptions: NextAuthOptions = {
         (session.user as { id?: string }).id =
           (typeof token?.sub === "string" ? token.sub : undefined) ??
           (user?.id ?? undefined);
+        (session.user as { hasTeam?: boolean }).hasTeam =
+          token?.hasTeam === true;
       }
       return session;
     },

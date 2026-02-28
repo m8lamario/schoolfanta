@@ -8,6 +8,11 @@ const PUBLIC_PATHS = new Set<string>([
   "/signup", // signup
 ]);
 
+// Paths accessible when authenticated but without a team
+const NO_TEAM_ALLOWED = new Set<string>([
+  "/create-team",
+]);
+
 function sanitizeNext(value: string | null): string | null {
   if (!value) return null;
   // Only allow relative paths to prevent open redirects.
@@ -61,7 +66,27 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  if (token) return NextResponse.next();
+  if (token) {
+    const hasTeam = token.hasTeam === true;
+
+    // User has no team → force to /create-team (unless already there)
+    if (!hasTeam && !NO_TEAM_ALLOWED.has(pathname)) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/create-team";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+
+    // User has team → don't allow /create-team
+    if (hasTeam && NO_TEAM_ALLOWED.has(pathname)) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+
+    return NextResponse.next();
+  }
 
   const loginUrl = request.nextUrl.clone();
   loginUrl.pathname = "/login";

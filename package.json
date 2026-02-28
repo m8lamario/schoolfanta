@@ -37,9 +37,13 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   },
   "overrides": {
     "@auth/core": "0.41.1"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
   }
 }

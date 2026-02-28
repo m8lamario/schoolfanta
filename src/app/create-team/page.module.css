@@ -1,0 +1,431 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  background: #0b1c2d;
+  color: #d6dce2;
+  overflow: hidden;
+  font-family: var(--font-geist-sans, "Segoe UI", Arial, sans-serif);
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.glowTop,
+.glowBottom {
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.45;
+}
+
+.glowTop {
+  top: -140px;
+  left: -140px;
+  background: radial-gradient(circle, rgba(110, 164, 255, 0.9), transparent 65%);
+}
+
+.glowBottom {
+  right: -160px;
+  bottom: -160px;
+  background: radial-gradient(circle, rgba(155, 107, 255, 0.9), transparent 65%);
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  padding: 40px 16px 96px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ─── Header ─── */
+
+.header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.title {
+  font-size: clamp(24px, 5vw, 32px);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: rgba(214, 220, 226, 0.75);
+}
+
+/* ─── Progress bar ─── */
+
+.progressBar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+
+.progressStep {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(110, 164, 255, 0.15);
+  transition: background 0.3s ease;
+}
+
+.progressStep.active {
+  background: linear-gradient(90deg, #6ea4ff, #9b6bff);
+}
+
+/* ─── Budget bar ─── */
+
+.budgetBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(9, 20, 34, 0.85);
+  border: 1px solid rgba(110, 164, 255, 0.18);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.budgetLabel {
+  color: rgba(214, 220, 226, 0.7);
+}
+
+.budgetValue {
+  font-weight: 700;
+  font-size: 18px;
+  color: #6ea4ff;
+}
+
+.budgetValue.warning {
+  color: #ffb74d;
+}
+
+.budgetValue.danger {
+  color: #ef5350;
+}
+
+/* ─── Step: Team Name ─── */
+
+.nameStep {
+  display: grid;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(214, 220, 226, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(110, 164, 255, 0.25);
+  background: rgba(9, 20, 34, 0.7);
+  color: #d6dce2;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  border-color: rgba(110, 164, 255, 0.6);
+}
+
+.input::placeholder {
+  color: rgba(214, 220, 226, 0.4);
+}
+
+/* ─── Step: Draft ─── */
+
+.draftStep {
+  display: grid;
+  gap: 16px;
+}
+
+.roleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.roleTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.roleCount {
+  font-size: 13px;
+  color: rgba(214, 220, 226, 0.6);
+}
+
+/* ─── Search ─── */
+
+.searchInput {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(110, 164, 255, 0.2);
+  background: rgba(9, 20, 34, 0.6);
+  color: #d6dce2;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: rgba(110, 164, 255, 0.5);
+}
+
+.searchInput::placeholder {
+  color: rgba(214, 220, 226, 0.35);
+}
+
+
+.noResults {
+  text-align: center;
+  padding: 24px 16px;
+  color: rgba(214, 220, 226, 0.45);
+  font-size: 14px;
+}
+
+.playerList {
+  display: grid;
+  gap: 8px;
+}
+
+.playerCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(9, 20, 34, 0.7);
+  border: 1px solid rgba(110, 164, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.playerCard:hover {
+  border-color: rgba(110, 164, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.playerCard.selected {
+  border-color: rgba(110, 164, 255, 0.6);
+  background: rgba(110, 164, 255, 0.08);
+}
+
+.playerCard.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.playerCheckbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid rgba(110, 164, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.playerCard.selected .playerCheckbox {
+  background: linear-gradient(135deg, #6ea4ff, #9b6bff);
+  border-color: transparent;
+}
+
+.checkmark {
+  color: #071120;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.playerInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.playerName {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playerSchool {
+  font-size: 12px;
+  color: rgba(214, 220, 226, 0.55);
+  margin-top: 2px;
+}
+
+.playerValue {
+  font-weight: 700;
+  font-size: 15px;
+  color: #6ea4ff;
+  flex-shrink: 0;
+}
+
+/* ─── Step: Confirm ─── */
+
+.confirmStep {
+  display: grid;
+  gap: 20px;
+}
+
+.confirmSection {
+  display: grid;
+  gap: 8px;
+}
+
+.confirmSection h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(214, 220, 226, 0.6);
+  margin-bottom: 4px;
+}
+
+.confirmPlayer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(9, 20, 34, 0.5);
+  font-size: 14px;
+}
+
+.confirmPlayer span:last-child {
+  color: #6ea4ff;
+  font-weight: 600;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(9, 20, 34, 0.85);
+  border: 1px solid rgba(110, 164, 255, 0.18);
+  font-weight: 600;
+}
+
+.summaryRow .value {
+  color: #6ea4ff;
+}
+
+/* ─── Navigation ─── */
+
+.nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.nav > * {
+  flex: 1;
+}
+
+/* ─── Error ─── */
+
+.error {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(239, 83, 80, 0.12);
+  border: 1px solid rgba(239, 83, 80, 0.3);
+  color: #ef5350;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ─── Confirm Button ─── */
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 8px 28px rgba(110, 164, 255, 0.35), 0 0 0 0 rgba(155, 107, 255, 0);
+  }
+  50% {
+    box-shadow: 0 12px 36px rgba(110, 164, 255, 0.5), 0 0 20px 4px rgba(155, 107, 255, 0.2);
+  }
+}
+
+@keyframes bounceIcon {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.confirmButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px 28px;
+  border-radius: 16px;
+  border: none;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, #6ea4ff 0%, #9b6bff 50%, #c471ed 100%);
+  cursor: pointer;
+  animation: glow 2.5s ease-in-out infinite;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.confirmButton:hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.1);
+}
+
+.confirmButton:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.confirmButton:focus-visible {
+  outline: 2px solid rgba(155, 107, 255, 0.8);
+  outline-offset: 3px;
+}
+
+.confirmIcon {
+  font-size: 22px;
+  animation: bounceIcon 2s ease-in-out infinite;
+}
+
+.confirmDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  animation: none;
+  filter: saturate(0.5);
+}
+
+.confirmDisabled:hover {
+  transform: none;
+  filter: saturate(0.5);
+}
+
