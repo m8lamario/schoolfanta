@@ -223,6 +223,12 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
           const ds = DRAFT_STEPS[step - 1];
           const rolePlayers = playersByRole[ds.role] || [];
           const filteredPlayers = filterPlayers(rolePlayers);
+          // Sort: selected players first, then the rest (stable order within each group)
+          const sortedPlayers = [...filteredPlayers].sort((a, b) => {
+            const aSelected = selectedIds.has(a.id) ? 0 : 1;
+            const bSelected = selectedIds.has(b.id) ? 0 : 1;
+            return aSelected - bSelected;
+          });
           const currentCount = countForRole(ds.role);
 
           return (
@@ -249,7 +255,7 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
                     Nessun giocatore trovato
                   </div>
                 )}
-                {filteredPlayers.map((player) => {
+                {sortedPlayers.slice(0, 5).map((player) => {
                   const isSelected = selectedIds.has(player.id);
                   const isFull = currentCount >= ds.required && !isSelected;
                   const tooExpensive = player.value > remaining && !isSelected;
@@ -260,7 +266,7 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
                       key={player.id}
                       className={`${styles.playerCard} ${
                         isSelected ? styles.selected : ""
-                      } ${isDisabled ? styles.disabled : ""}`}
+                      } ${isDisabled ? styles.disabled : ""} ${styles.playerCardAnimated}`}
                       onClick={() => {
                         if (!isDisabled) togglePlayer(player, ds.required);
                       }}
@@ -276,6 +282,11 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
                     </div>
                   );
                 })}
+                {sortedPlayers.length > 5 && (
+                  <div className={styles.moreHint}>
+                    Mostrati 5 di {sortedPlayers.length} giocatori. Usa la barra di ricerca per trovare gli altri.
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -329,7 +340,7 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
                 setStep((s) => s - 1);
               }}
             >
-              ← Indietro
+              Indietro
             </Button>
           )}
 
@@ -343,7 +354,7 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
                 setStep((s) => s + 1);
               }}
             >
-              Avanti →
+              Avanti
             </Button>
           ) : (
             <button
