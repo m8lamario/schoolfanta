@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import type { RealPlayerDTO } from "./actions";
@@ -32,6 +32,21 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
 
   // Search filter (matches name or school)
   const [search, setSearch] = useState("");
+
+  // Responsive: show fewer players on mobile to fit in viewport
+  const [visibleCount, setVisibleCount] = useState(8);
+
+  useEffect(() => {
+    function updateCount() {
+      const w = window.innerWidth;
+      if (w >= 1024) setVisibleCount(18);
+      else if (w >= 768) setVisibleCount(12);
+      else setVisibleCount(8);
+    }
+    updateCount();
+    window.addEventListener("resize", updateCount);
+    return () => window.removeEventListener("resize", updateCount);
+  }, []);
 
   // Group players by role
   const playersByRole = useMemo(() => {
@@ -255,7 +270,7 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
                     Nessun giocatore trovato
                   </div>
                 )}
-                {sortedPlayers.slice(0, 5).map((player) => {
+                {sortedPlayers.slice(0, visibleCount).map((player) => {
                   const isSelected = selectedIds.has(player.id);
                   const isFull = currentCount >= ds.required && !isSelected;
                   const tooExpensive = player.value > remaining && !isSelected;
@@ -282,9 +297,9 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
                     </div>
                   );
                 })}
-                {sortedPlayers.length > 5 && (
+                {sortedPlayers.length > visibleCount && (
                   <div className={styles.moreHint}>
-                    Mostrati 5 di {sortedPlayers.length} giocatori. Usa la barra di ricerca per trovare gli altri.
+                    Mostrati {visibleCount} di {sortedPlayers.length} giocatori. Usa la barra di ricerca per trovare gli altri.
                   </div>
                 )}
               </div>
@@ -362,7 +377,6 @@ export default function CreateTeamClient({ players, initialBudget }: Props) {
               disabled={isSubmitting}
               onClick={handleSubmit}
             >
-              <span className={styles.confirmIcon}>🏆</span>
               <span>{isSubmitting ? "Creazione in corso..." : "Conferma squadra"}</span>
             </button>
           )}
