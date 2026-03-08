@@ -1,0 +1,243 @@
+.page {
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-geist-sans, "Segoe UI", Arial, sans-serif);
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.glowTop,
+.glowBottom {
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.4;
+}
+
+.glowTop {
+  top: -120px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(155, 107, 255, 0.9), transparent 65%);
+}
+
+.glowBottom {
+  left: -140px;
+  bottom: -140px;
+  background: radial-gradient(circle, rgba(110, 164, 255, 0.9), transparent 65%);
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 16px;
+  padding: 24px 16px 32px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ─── HEADER ─── */
+
+.header {
+  display: grid;
+  gap: 4px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #d6dce2;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: rgba(214, 220, 226, 0.5);
+}
+
+/* ─── LEAGUE CARDS ─── */
+
+.leagueList {
+  display: grid;
+  gap: 12px;
+}
+
+.leagueCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: rgba(9, 20, 34, 0.85);
+  border: 1px solid rgba(110, 164, 255, 0.15);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.leagueCard:active {
+  transform: scale(0.98);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .leagueCard:hover {
+    border-color: rgba(110, 164, 255, 0.35);
+  }
+}
+
+.leagueCardGlobal {
+  border-color: rgba(110, 164, 255, 0.3);
+  background: linear-gradient(135deg, rgba(110, 164, 255, 0.08), rgba(155, 107, 255, 0.06));
+}
+
+.leagueInfo {
+  display: grid;
+  gap: 4px;
+}
+
+.leagueName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d6dce2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.globalBadge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6ea4ff, #9b6bff);
+  color: #071120;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.leagueMeta {
+  font-size: 12px;
+  color: rgba(214, 220, 226, 0.45);
+}
+
+.leagueRank {
+  display: grid;
+  gap: 2px;
+  text-align: center;
+}
+
+.rankValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.rankLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(214, 220, 226, 0.45);
+}
+
+.pointsLabel {
+  font-size: 11px;
+  color: rgba(214, 220, 226, 0.4);
+}
+
+/* ─── EMPTY ─── */
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(214, 220, 226, 0.5);
+  font-size: 15px;
+}
+
+/* ─── LEAGUE DETAIL ─── */
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6ea4ff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.backLink:active {
+  opacity: 0.7;
+}
+
+.standingsTable {
+  display: grid;
+  gap: 6px;
+}
+
+.standingsRow {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(9, 20, 34, 0.7);
+  border: 1px solid rgba(110, 164, 255, 0.08);
+  gap: 12px;
+}
+
+.standingsRowMe {
+  border-color: rgba(110, 164, 255, 0.35);
+  background: rgba(110, 164, 255, 0.06);
+}
+
+.standingsRank {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(214, 220, 226, 0.5);
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.standingsRank1 { color: #ffd700; }
+.standingsRank2 { color: #c0c0c0; }
+.standingsRank3 { color: #cd7f32; }
+
+.standingsInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.standingsTeam {
+  font-size: 14px;
+  font-weight: 600;
+  color: #d6dce2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.standingsUser {
+  font-size: 11px;
+  color: rgba(214, 220, 226, 0.4);
+}
+
+.standingsPoints {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.standingsPts {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(214, 220, 226, 0.4);
+}
+
