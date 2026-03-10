@@ -80,10 +80,72 @@ model VerificationToken {
 // ─── GAME MODELS ───
 
 model School {
-  id      String       @id @default(cuid())
-  name    String       @unique
-  players RealPlayer[]
-  users   User[]
+  id        String       @id @default(cuid())
+  name      String       @unique
+  shortName String?      // e.g. "GAL", "GIO"
+  slug      String?      @unique // e.g. "galfer", "gioberti"
+  players   RealPlayer[]
+  users     User[]
+  teamMatches TeamMatch[]
+}
+
+// ─── MATCH / LIVE MODELS ───
+
+model Stadium {
+  id        String   @id @default(cuid())
+  externalId Int?    @unique // ID from external API
+  name      String
+  address   String?
+  latitude  Float?
+  longitude Float?
+
+  matches   Match[]
+}
+
+model Match {
+  id         String    @id @default(cuid())
+  externalId Int?      @unique // ID from external API
+  datetime   DateTime
+  stadiumId  String?
+  stadium    Stadium?  @relation(fields: [stadiumId], references: [id])
+  matchdayId String?
+  matchday   Matchday? @relation(fields: [matchdayId], references: [id])
+  scoreText  String?   // "1 - 0"
+  name       String?   // "Galfer vs Gioberti"
+  finished   Boolean   @default(false)
+  status     String    @default("scheduled") // scheduled | live | finished
+
+  teams      TeamMatch[]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model TeamMatch {
+  id         String  @id @default(cuid())
+  externalId Int?    @unique // ID from external API
+  matchId    String
+  match      Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  schoolId   String
+  school     School  @relation(fields: [schoolId], references: [id])
+  isHome     Boolean
+  score      Int     @default(0)
+  penalties  Int     @default(0)
+
+  events     MatchEvent[]
+
+  @@unique([matchId, schoolId])
+}
+
+model MatchEvent {
+  id          String     @id @default(cuid())
+  externalId  Int?       @unique // ID from external API
+  teamMatchId String
+  teamMatch   TeamMatch  @relation(fields: [teamMatchId], references: [id], onDelete: Cascade)
+  playerId    String?    // nullable, sometimes player unknown
+  player      RealPlayer? @relation(fields: [playerId], references: [id])
+  minute      Int
+  eventType   String     // GOAL, YELLOW_CARD, RED_CARD, ASSIST, SUBSTITUTION, etc.
 }
 
 model RealPlayer {
@@ -97,6 +159,7 @@ model RealPlayer {
   fantasyPlayers FantasyPlayer[]
   lineupPlayers  LineupPlayer[]
   votes          PlayerVote[]
+  matchEvents    MatchEvent[]
 }
 
 model FantasyTeam {
@@ -129,6 +192,7 @@ model Matchday {
   lineups Lineup[]
   scores  MatchdayScore[]
   votes   PlayerVote[]
+  matches Match[]
 }
 
 model Lineup {
