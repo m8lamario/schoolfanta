@@ -24,7 +24,7 @@ export default async function DashboardLayout({
 
   return (
     <div style={{ minHeight: "100vh", background: "#0b1c2d", color: "#d6dce2" }}>
-      <main style={{ paddingBottom: 80 }}>{children}</main>
+      <main>{children}</main>
       <BottomNav hasLiveMatch={hasLive} />
     </div>
   );

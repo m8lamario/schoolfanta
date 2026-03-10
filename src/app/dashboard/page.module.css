@@ -38,7 +38,7 @@
   z-index: 1;
   display: grid;
   gap: 20px;
-  padding: 24px 16px 32px;
+  padding: 24px 16px 90px;
   max-width: 600px;
   margin: 0 auto;
 }
