@@ -30,6 +30,7 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css"
           rel="stylesheet"
         />
+          <title>SchoolFanta</title>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Providers>{children}</Providers>

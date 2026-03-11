@@ -205,3 +205,228 @@
   margin-bottom: 16px;
 }
 
+/* ─── FINISHED BADGE ─── */
+
+.finishedBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(80, 180, 80, 0.15);
+  color: #50b450;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ─── SECTION TITLES ─── */
+
+.sectionTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d6dce2;
+}
+
+.sectionCount {
+  font-weight: 400;
+  color: rgba(214, 220, 226, 0.4);
+}
+
+/* ─── MATCHES SECTION ─── */
+
+.matchesSection {
+  display: grid;
+  gap: 10px;
+}
+
+.matchCard {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(9, 20, 34, 0.7);
+  border: 1px solid rgba(110, 164, 255, 0.08);
+  display: grid;
+  gap: 10px;
+}
+
+.matchLive {
+  border-color: rgba(255, 90, 90, 0.25);
+}
+
+.matchHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.matchStatusBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(214, 220, 226, 0.08);
+  color: rgba(214, 220, 226, 0.5);
+}
+
+.matchStatus_live {
+  background: rgba(255, 90, 90, 0.15);
+  color: #ff5a5a;
+}
+
+.matchStatus_finished {
+  background: rgba(80, 180, 80, 0.12);
+  color: #50b450;
+}
+
+.matchTime {
+  font-size: 11px;
+  color: rgba(214, 220, 226, 0.4);
+}
+
+.matchTeams {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.matchTeamName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d6dce2;
+  min-width: 60px;
+  text-align: center;
+}
+
+.matchScoreText {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* ─── EVENT TIMELINE ─── */
+
+.eventTimeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eventItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: rgba(214, 220, 226, 0.55);
+  background: rgba(214, 220, 226, 0.06);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.eventMinute {
+  font-weight: 600;
+  color: rgba(214, 220, 226, 0.7);
+}
+
+.eventPlayer {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── STARTERS SECTION ─── */
+
+.startersSection {
+  display: grid;
+  gap: 10px;
+}
+
+.roleGroup {
+  display: grid;
+  gap: 6px;
+}
+
+.voteRowHighlight {
+  border-color: rgba(255, 90, 90, 0.22) !important;
+  background: rgba(255, 90, 90, 0.05);
+}
+
+.voteRowLive {
+  border-color: rgba(255, 90, 90, 0.5) !important;
+  background: rgba(255, 90, 90, 0.08);
+  box-shadow: 0 0 8px rgba(255, 90, 90, 0.15);
+}
+
+.voteSchool {
+  font-size: 11px;
+  color: rgba(214, 220, 226, 0.4);
+}
+
+.liveIndicator {
+  color: #ff5a5a;
+  font-weight: 700;
+  font-size: 10px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.voteValuePending {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(214, 220, 226, 0.25);
+}
+
+.pendingNotice {
+  font-size: 13px;
+  color: rgba(214, 220, 226, 0.45);
+  text-align: center;
+  padding: 16px 12px;
+  border-radius: 12px;
+  background: rgba(9, 20, 34, 0.5);
+}
+
+/* ─── ALL VOTES COLLAPSIBLE ─── */
+
+.allVotesSection {
+  display: grid;
+  gap: 10px;
+}
+
+.allVotesToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(110, 164, 255, 0.08);
+  background: rgba(9, 20, 34, 0.6);
+  color: #d6dce2;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.allVotesToggle:hover {
+  background: rgba(9, 20, 34, 0.8);
+}
+
+.chevron {
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.allVotesList {
+  display: grid;
+  gap: 6px;
+}
+
