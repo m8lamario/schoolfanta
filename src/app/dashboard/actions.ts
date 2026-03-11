@@ -302,6 +302,220 @@ export type LiveMatchdayData = {
   votedPlayers: LiveVotedPlayer[];
 };
 
+/* ─── LINEUP: GET CURRENT ─── */
+
+export type LineupPlayerData = {
+  realPlayerId: string;
+  name: string;
+  role: string;
+  schoolName: string;
+  value: number;
+  isStarter: boolean;
+};
+
+export type CurrentLineup = {
+  matchdayId: string;
+  matchdayNumber: number;
+  deadline: string;
+  players: LineupPlayerData[];
+};
+
+export async function getCurrentLineup(userId: string): Promise<CurrentLineup | null> {
+  const matchday = await prisma.matchday.findFirst({
+    where: { status: "open" },
+    orderBy: { number: "asc" },
+  });
+  if (!matchday) return null;
+
+  const team = await prisma.fantasyTeam.findUnique({
+    where: { userId },
+    include: {
+      players: {
+        include: {
+          realPlayer: {
+            include: { school: { select: { name: true } } },
+          },
+        },
+      },
+    },
+  });
+  if (!team) return null;
+
+  // Check if lineup already exists for this matchday
+  const existingLineup = await prisma.lineup.findUnique({
+    where: {
+      fantasyTeamId_matchdayId: {
+        fantasyTeamId: team.id,
+        matchdayId: matchday.id,
+      },
+    },
+    include: {
+      players: {
+        include: {
+          realPlayer: {
+            include: { school: { select: { name: true } } },
+          },
+        },
+      },
+    },
+  });
+
+  let players: LineupPlayerData[];
+
+  if (existingLineup && existingLineup.players.length > 0) {
+    // Use existing lineup order
+    players = existingLineup.players.map((lp) => ({
+      realPlayerId: lp.realPlayer.id,
+      name: lp.realPlayer.name,
+      role: lp.realPlayer.role,
+      schoolName: lp.realPlayer.school.name,
+      value: lp.realPlayer.value,
+      isStarter: lp.isStarter,
+    }));
+  } else {
+    // No lineup yet: all players from roster, default starters by role rules
+    // Default: 1 GK, 4 DEF, 4 MID, 2 ATT as starters (11)
+    const byRole: Record<string, typeof team.players> = { GK: [], DEF: [], MID: [], ATT: [] };
+    for (const fp of team.players) {
+      const role = fp.realPlayer.role;
+      if (byRole[role]) byRole[role].push(fp);
+    }
+
+    const starterCounts: Record<string, number> = { GK: 1, DEF: 4, MID: 4, ATT: 2 };
+    players = [];
+
+    for (const role of ["GK", "DEF", "MID", "ATT"]) {
+      const rolePlayers = byRole[role] || [];
+      const starterCount = starterCounts[role];
+      rolePlayers.forEach((fp, idx) => {
+        players.push({
+          realPlayerId: fp.realPlayer.id,
+          name: fp.realPlayer.name,
+          role: fp.realPlayer.role,
+          schoolName: fp.realPlayer.school.name,
+          value: fp.realPlayer.value,
+          isStarter: idx < starterCount,
+        });
+      });
+    }
+  }
+
+  return {
+    matchdayId: matchday.id,
+    matchdayNumber: matchday.number,
+    deadline: matchday.deadline.toISOString(),
+    players,
+  };
+}
+
+/* ─── LINEUP: SAVE ─── */
+
+export type SaveLineupResult = {
+  success: boolean;
+  error?: string;
+};
+
+export async function saveLineup(
+  userId: string,
+  matchdayId: string,
+  starterIds: string[],
+  benchIds: string[],
+): Promise<SaveLineupResult> {
+  // Validate: exactly 11 starters and 4 bench
+  if (starterIds.length !== 11) {
+    return { success: false, error: "Servono esattamente 11 titolari." };
+  }
+  if (benchIds.length !== 4) {
+    return { success: false, error: "Servono esattamente 4 panchinari." };
+  }
+
+  // Check matchday is still open
+  const matchday = await prisma.matchday.findUnique({
+    where: { id: matchdayId },
+  });
+  if (!matchday || matchday.status !== "open") {
+    return { success: false, error: "La giornata non è più aperta per le formazioni." };
+  }
+  if (new Date() > matchday.deadline) {
+    return { success: false, error: "La deadline per le formazioni è scaduta." };
+  }
+
+  const team = await prisma.fantasyTeam.findUnique({
+    where: { userId },
+    include: { players: { select: { realPlayerId: true } } },
+  });
+  if (!team) {
+    return { success: false, error: "Squadra non trovata." };
+  }
+
+  // Validate all players belong to user's roster
+  const rosterIds = new Set(team.players.map((p) => p.realPlayerId));
+  const allIds = [...starterIds, ...benchIds];
+  for (const id of allIds) {
+    if (!rosterIds.has(id)) {
+      return { success: false, error: "Un giocatore selezionato non è nella tua rosa." };
+    }
+  }
+
+  // Validate no duplicates
+  if (new Set(allIds).size !== allIds.length) {
+    return { success: false, error: "Ci sono giocatori duplicati nella formazione." };
+  }
+
+  // Validate role constraints: at least 1 GK starter
+  // Fetch real player roles
+  const realPlayers = await prisma.realPlayer.findMany({
+    where: { id: { in: allIds } },
+    select: { id: true, role: true },
+  });
+  const roleMap = new Map(realPlayers.map((p) => [p.id, p.role]));
+
+  const starterRoles = starterIds.map((id) => roleMap.get(id));
+  const gkCount = starterRoles.filter((r) => r === "GK").length;
+  if (gkCount !== 1) {
+    return { success: false, error: "Devi schierare esattamente 1 portiere titolare." };
+  }
+
+  // Upsert lineup
+  const lineup = await prisma.lineup.upsert({
+    where: {
+      fantasyTeamId_matchdayId: {
+        fantasyTeamId: team.id,
+        matchdayId,
+      },
+    },
+    update: {},
+    create: {
+      fantasyTeamId: team.id,
+      matchdayId,
+    },
+  });
+
+  // Delete old lineup players and recreate
+  await prisma.lineupPlayer.deleteMany({
+    where: { lineupId: lineup.id },
+  });
+
+  await prisma.lineupPlayer.createMany({
+    data: [
+      ...starterIds.map((realPlayerId) => ({
+        lineupId: lineup.id,
+        realPlayerId,
+        isStarter: true,
+      })),
+      ...benchIds.map((realPlayerId) => ({
+        lineupId: lineup.id,
+        realPlayerId,
+        isStarter: false,
+      })),
+    ],
+  });
+
+  return { success: true };
+}
+
+/* ─── LIVE MATCHDAY DATA ─── */
+
 export async function getLiveMatchday(userId: string): Promise<LiveMatchdayData | null> {
   const matchday = await prisma.matchday.findFirst({
     where: { status: "locked" },

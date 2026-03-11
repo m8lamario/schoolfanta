@@ -1,0 +1,414 @@
+/* ─── OVERLAY ─── */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  width: 100%;
+  max-width: 600px;
+  max-height: 95vh;
+  background: linear-gradient(180deg, #0d1e33 0%, #0b1728 100%);
+  border-radius: 24px 24px 0 0;
+  padding: 16px 16px 32px;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ─── MODAL HEADER ─── */
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.closeBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(110, 164, 255, 0.15);
+  background: rgba(9, 20, 34, 0.8);
+  color: #d6dce2;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.closeBtn:hover {
+  background: rgba(110, 164, 255, 0.15);
+}
+
+.modalTitle {
+  flex: 1;
+}
+
+.modalTitle h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #d6dce2;
+  margin: 0;
+}
+
+.deadlineText {
+  font-size: 12px;
+  color: rgba(214, 220, 226, 0.5);
+}
+
+.viewToggle {
+  display: flex;
+  gap: 4px;
+  background: rgba(9, 20, 34, 0.6);
+  border-radius: 10px;
+  padding: 3px;
+  border: 1px solid rgba(110, 164, 255, 0.1);
+}
+
+.toggleBtn {
+  width: 34px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggleActive {
+  background: rgba(110, 164, 255, 0.2);
+}
+
+/* ─── COUNTER ─── */
+
+.counter {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.counterValid {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(80, 200, 120, 0.15);
+  color: #50c878;
+}
+
+.counterInvalid {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 90, 90, 0.15);
+  color: #ff5a5a;
+}
+
+/* ─── PITCH ─── */
+
+.pitchContainer {
+  width: 100%;
+  padding: 0 4px;
+}
+
+.pitch {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  max-height: 320px;
+  background: linear-gradient(180deg, #1a5c2e 0%, #22753a 50%, #1a5c2e 100%);
+  border-radius: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.pitchLines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.centerCircle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.centerLine {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.penaltyAreaTop {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 45%;
+  height: 14%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.penaltyAreaBottom {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 45%;
+  height: 14%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+}
+
+.pitchRow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+/* ─── FIELD PLAYER (on pitch) ─── */
+
+.fieldPlayer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.fieldPlayerCircle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.fieldGK .fieldPlayerCircle { background: linear-gradient(135deg, #e8a030, #c88520); }
+.fieldDEF .fieldPlayerCircle { background: linear-gradient(135deg, #3cb050, #2a8e3c); }
+.fieldMID .fieldPlayerCircle { background: linear-gradient(135deg, #4a90e0, #3570c0); }
+.fieldATT .fieldPlayerCircle { background: linear-gradient(135deg, #e04040, #c02020); }
+
+.fieldPlayerRole {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.fieldPlayerName {
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  max-width: 60px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── LISTS CONTAINER ─── */
+
+.listsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ─── ZONE SECTION ─── */
+
+.zoneSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.zoneHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.zoneTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #d6dce2;
+}
+
+.zoneCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(214, 220, 226, 0.5);
+}
+
+.zoneList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 48px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(9, 20, 34, 0.6);
+  border: 1px dashed rgba(110, 164, 255, 0.15);
+  transition: border-color 0.2s;
+}
+
+.zonePlaceholder {
+  text-align: center;
+  color: rgba(214, 220, 226, 0.3);
+  font-size: 13px;
+  padding: 12px;
+}
+
+/* ─── PLAYER CHIP ─── */
+
+.playerChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(9, 20, 34, 0.85);
+  border: 1px solid rgba(110, 164, 255, 0.12);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.playerChip:active {
+  cursor: grabbing;
+}
+
+.dragging {
+  box-shadow: 0 8px 32px rgba(110, 164, 255, 0.3);
+  transform: scale(1.04);
+  z-index: 999;
+}
+
+.chipRole {
+  font-size: 10px;
+  font-weight: 700;
+  width: 32px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.chipGK .chipRole { background: rgba(255, 170, 50, 0.8); }
+.chipDEF .chipRole { background: rgba(80, 180, 80, 0.8); }
+.chipMID .chipRole { background: rgba(110, 164, 255, 0.8); }
+.chipATT .chipRole { background: rgba(255, 90, 90, 0.8); }
+
+.chipName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #d6dce2;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── MESSAGES ─── */
+
+.msgSuccess {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(80, 200, 120, 0.15);
+  color: #50c878;
+}
+
+.msgError {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 90, 90, 0.15);
+  color: #ff5a5a;
+}
+
+/* ─── SAVE BUTTON ─── */
+
+.saveBtn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #6ea4ff, #9b6bff);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  margin-top: 4px;
+}
+
+.saveBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.saveBtn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.saveBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+

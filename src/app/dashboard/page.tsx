@@ -1,25 +1,9 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getMyTeamSummary, getMyRoster, getNextMatchday } from "./actions";
-import type { RosterPlayer } from "./actions";
+import { getMyTeamSummary, getNextMatchday, getCurrentLineup, saveLineup } from "./actions";
+import DashboardClient from "./DashboardClient";
 import styles from "./page.module.css";
-
-const ROLE_ORDER = ["GK", "DEF", "MID", "ATT"] as const;
-const ROLE_LABELS: Record<string, string> = {
-  GK: "Portieri",
-  DEF: "Difensori",
-  MID: "Centrocampisti",
-  ATT: "Attaccanti",
-};
-
-function groupByRole(players: RosterPlayer[]) {
-  const groups: Record<string, RosterPlayer[]> = {};
-  for (const role of ROLE_ORDER) {
-    groups[role] = players.filter((p) => p.role === role);
-  }
-  return groups;
-}
 
 function formatDeadline(iso: string) {
   const d = new Date(iso);
@@ -39,17 +23,15 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const [teamSummary, roster, nextMatchday] = await Promise.all([
+  const [teamSummary, nextMatchday, lineupData] = await Promise.all([
     getMyTeamSummary(session.user.id),
-    getMyRoster(session.user.id),
     getNextMatchday(),
+    getCurrentLineup(session.user.id),
   ]);
 
   if (!teamSummary) {
     redirect("/create-team");
   }
-
-  const grouped = groupByRole(roster);
 
   return (
     <div className={styles.page}>
@@ -101,47 +83,12 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        {/* Roster */}
-        {roster.length > 0 ? (
-          <div className={styles.rosterSection}>
-            <h2 className={styles.rosterTitle}>La tua rosa</h2>
-            {ROLE_ORDER.map((role) => {
-              const players = grouped[role];
-              if (!players || players.length === 0) return null;
-              return (
-                <div key={role} className={styles.roleGroup}>
-                  <span className={styles.roleLabel}>
-                    {ROLE_LABELS[role]}
-                  </span>
-                  {players.map((p) => (
-                    <div key={p.id} className={styles.playerRow}>
-                      <div className={styles.playerInfo}>
-                        <span
-                          className={`${styles.playerRoleBadge} ${
-                            styles[`role${role}` as keyof typeof styles]
-                          }`}
-                        >
-                          {role}
-                        </span>
-                        <div>
-                          <div className={styles.playerName}>{p.name}</div>
-                          <div className={styles.playerSchool}>
-                            {p.schoolName}
-                          </div>
-                        </div>
-                      </div>
-                      <span className={styles.playerValue}>{p.value} cr</span>
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className={styles.emptyState}>
-            La tua rosa è vuota. Qualcosa è andato storto!
-          </div>
-        )}
+        {/* Lineup Card (clickable → opens lineup builder) */}
+        <DashboardClient
+          userId={session.user.id}
+          lineupData={lineupData}
+          saveAction={saveLineup}
+        />
       </div>
     </div>
   );
