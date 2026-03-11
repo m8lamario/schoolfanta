@@ -2,6 +2,7 @@
   position: relative;
   overflow: hidden;
   font-family: var(--font-geist-sans, "Segoe UI", Arial, sans-serif);
+  min-height: 100vh;
 }
 
 .background {
@@ -39,7 +40,7 @@
   z-index: 1;
   display: grid;
   gap: 16px;
-  padding: 24px 16px 32px;
+  padding: 24px 16px 80px;
   max-width: 600px;
   margin: 0 auto;
 }

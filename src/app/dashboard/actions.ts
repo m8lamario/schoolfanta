@@ -117,6 +117,63 @@ export async function hasLiveMatchday(): Promise<boolean> {
   return Boolean(live);
 }
 
+/* ─── LIVE MATCHDAY SUMMARY (for dashboard card) ─── */
+
+export type LiveMatchSummary = {
+  homeShort: string | null;
+  homeName: string;
+  homeScore: number;
+  awayShort: string | null;
+  awayName: string;
+  awayScore: number;
+  status: string; // scheduled | live | finished
+  scoreText: string | null;
+};
+
+export type LiveMatchdaySummary = {
+  matchdayNumber: number;
+  matches: LiveMatchSummary[];
+};
+
+export async function getLiveMatchdaySummary(): Promise<LiveMatchdaySummary | null> {
+  const matchday = await prisma.matchday.findFirst({
+    where: { status: "locked" },
+    orderBy: { number: "desc" },
+  });
+
+  if (!matchday) return null;
+
+  const matches = await prisma.match.findMany({
+    where: { matchdayId: matchday.id },
+    orderBy: { datetime: "asc" },
+    include: {
+      teams: {
+        include: {
+          school: { select: { name: true, shortName: true } },
+        },
+      },
+    },
+  });
+
+  return {
+    matchdayNumber: matchday.number,
+    matches: matches.map((m) => {
+      const home = m.teams.find((t) => t.isHome);
+      const away = m.teams.find((t) => !t.isHome);
+      return {
+        homeShort: home?.school.shortName ?? null,
+        homeName: home?.school.name ?? "—",
+        homeScore: home?.score ?? 0,
+        awayShort: away?.school.shortName ?? null,
+        awayName: away?.school.name ?? "—",
+        awayScore: away?.score ?? 0,
+        status: m.status,
+        scoreText: m.scoreText,
+      };
+    }),
+  };
+}
+
 /* ─── USER LEAGUES (card list) ─── */
 
 export type LeagueCard = {

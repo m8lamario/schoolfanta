@@ -2,6 +2,7 @@
   position: relative;
   overflow: hidden;
   font-family: var(--font-geist-sans, "Segoe UI", Arial, sans-serif);
+  min-height: 100vh;
 }
 
 .background {
@@ -149,6 +150,127 @@
   text-align: center;
   color: rgba(214, 220, 226, 0.5);
   font-size: 14px;
+}
+
+/* ─── LIVE CARD ─── */
+
+.liveCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(9, 20, 34, 0.85);
+  border: 1px solid rgba(255, 80, 80, 0.25);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.liveCard:hover {
+  border-color: rgba(255, 80, 80, 0.45);
+  box-shadow: 0 4px 24px rgba(255, 80, 80, 0.12);
+}
+
+.liveCard:active {
+  transform: scale(0.98);
+}
+
+.liveCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 60, 60, 0.15);
+}
+
+.livePulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff4444;
+  animation: livePulseAnim 1.4s ease-in-out infinite;
+}
+
+@keyframes livePulseAnim {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.liveLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #ff4444;
+  letter-spacing: 0.08em;
+}
+
+.liveArrow {
+  margin-left: auto;
+  font-size: 24px;
+  color: rgba(255, 80, 80, 0.5);
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+.liveMatches {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.liveMatchRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(9, 20, 34, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.liveTeam {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d6dce2;
+  width: 70px;
+}
+
+.liveTeamHome {
+  text-align: right;
+}
+
+.liveTeamAway {
+  text-align: left;
+}
+
+.liveScore {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  min-width: 50px;
+  text-align: center;
+}
+
+.liveMatchDot {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ff4444;
+  animation: livePulseAnim 1.4s ease-in-out infinite;
 }
 
 /* ─── LINEUP CARD (clickable) ─── */
