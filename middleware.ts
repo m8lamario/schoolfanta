@@ -13,6 +13,9 @@ const NO_TEAM_ALLOWED = new Set<string>([
   "/create-team",
 ]);
 
+// Paths that require admin privileges
+const ADMIN_PATHS_PREFIX = "/admin";
+
 function sanitizeNext(value: string | null): string | null {
   if (!value) return null;
   // Only allow relative paths to prevent open redirects.
@@ -68,6 +71,19 @@ export async function middleware(request: NextRequest) {
 
   if (token) {
     const hasTeam = token.hasTeam === true;
+    const isAdmin = token.isAdmin === true;
+
+    // Admin routes require isAdmin flag
+    if (pathname.startsWith(ADMIN_PATHS_PREFIX)) {
+      if (!isAdmin) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        url.search = "";
+        return NextResponse.redirect(url);
+      }
+      // Admin can access admin pages regardless of hasTeam
+      return NextResponse.next();
+    }
 
     // User has no team → force to /create-team (unless already there)
     if (!hasTeam && !NO_TEAM_ALLOWED.has(pathname)) {
@@ -97,6 +113,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all pages except Next internals and API routes.
+  // Run on all pages except Next internals, API routes, and static files.
+  // Note: /api/cron/* routes handle their own auth via CRON_SECRET
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

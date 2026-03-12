@@ -1,0 +1,393 @@
+.adminContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.adminNav {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.navIcon {
+  font-size: 1.3rem;
+}
+
+.navLinks {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.navLink {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.navLink:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.backLink {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.backLink:hover {
+  color: white;
+}
+
+.adminMain {
+  flex: 1;
+  padding: 2rem;
+  background: #f8fafc;
+}
+
+/* Dashboard styles */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.statCard h3 {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.statCard.warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.statCard.success {
+  border-left: 4px solid #10b981;
+}
+
+.statCard.info {
+  border-left: 4px solid #3b82f6;
+}
+
+/* Matchday list styles */
+.matchdayList {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.matchdayList h2 {
+  margin-bottom: 1rem;
+  color: #1e293b;
+}
+
+.matchdayItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.matchdayItem:last-child {
+  border-bottom: none;
+}
+
+.matchdayInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.matchdayNumber {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.matchdayDeadline {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.statusBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.statusBadge.open {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.statusBadge.locked {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.statusBadge.scored {
+  background: #d1fae5;
+  color: #047857;
+}
+
+/* Votes page styles */
+.votesContainer {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.votesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.votesHeader h1 {
+  color: #1e293b;
+  margin: 0;
+}
+
+.matchdaySelector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.matchdaySelector select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: white;
+}
+
+.matchdaySelector button {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.matchdaySelector button:hover {
+  background: #2563eb;
+}
+
+/* Votes table */
+.votesTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.votesTable th {
+  text-align: left;
+  padding: 0.75rem;
+  background: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.votesTable td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.votesTable tr:hover {
+  background: #f8fafc;
+}
+
+.votesTable input[type="number"] {
+  width: 60px;
+  padding: 0.4rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.votesTable input[type="number"]:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.votesTable input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.playerRow {
+  transition: opacity 0.2s;
+}
+
+.playerRow.inactive {
+  opacity: 0.4;
+}
+
+.playerName {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.playerSchool {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.playerRole {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.playerRole.P { background: #fef3c7; color: #b45309; }
+.playerRole.D { background: #dbeafe; color: #1d4ed8; }
+.playerRole.C { background: #d1fae5; color: #047857; }
+.playerRole.A { background: #fee2e2; color: #b91c1c; }
+
+/* Action buttons */
+.actionsBar {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.saveButton {
+  padding: 0.75rem 1.5rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+
+.saveButton:hover {
+  background: #059669;
+}
+
+.saveButton:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.recalculateButton {
+  padding: 0.75rem 1.5rem;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s;
+}
+
+.recalculateButton:hover {
+  background: #d97706;
+}
+
+.recalculateButton:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.emptyState p {
+  margin-bottom: 1rem;
+}
+
+/* Toast/feedback */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  animation: slideIn 0.3s ease;
+  z-index: 1000;
+}
+
+.toast.success {
+  background: #10b981;
+}
+
+.toast.error {
+  background: #ef4444;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+

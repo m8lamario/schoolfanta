@@ -78,13 +78,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger }) {
       if (user?.id && !token.sub) token.sub = user.id;
 
-      // Load hasTeam from DB on sign-in or when explicitly updated
+      // Load hasTeam and isAdmin from DB on sign-in or when explicitly updated
       if (user?.id || trigger === "update") {
         const dbUser = await prisma.user.findUnique({
           where: { id: (user?.id ?? token.sub) as string },
-          select: { hasTeam: true },
+          select: { hasTeam: true, isAdmin: true },
         });
         token.hasTeam = dbUser?.hasTeam ?? false;
+        token.isAdmin = dbUser?.isAdmin ?? false;
       }
 
       return token;
@@ -96,6 +97,8 @@ export const authOptions: NextAuthOptions = {
           (user?.id ?? undefined);
         (session.user as { hasTeam?: boolean }).hasTeam =
           token?.hasTeam === true;
+        (session.user as { isAdmin?: boolean }).isAdmin =
+          token?.isAdmin === true;
       }
       return session;
     },

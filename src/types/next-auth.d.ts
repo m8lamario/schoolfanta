@@ -3,13 +3,14 @@ import type { JWT as DefaultJWT } from "next-auth/jwt";
 
 declare module "next-auth" {
   interface Session {
-    user: DefaultSession["user"] & { id: string; hasTeam: boolean };
+    user: DefaultSession["user"] & { id: string; hasTeam: boolean; isAdmin: boolean };
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
     hasTeam?: boolean;
+    isAdmin?: boolean;
   }
 }
 

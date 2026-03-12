@@ -1,0 +1,56 @@
+name: SchoolFanta Cron Jobs
+
+on:
+  schedule:
+    # Lock matchday: ogni 15 minuti
+    - cron: "*/15 * * * *"
+    # Auto-score: ogni ora alle :00
+    - cron: "0 * * * *"
+  # Trigger manuale di emergenza dal pannello GitHub
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Job da eseguire"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - lock-matchday
+          - auto-score
+
+env:
+  APP_URL: ${{ secrets.APP_URL }}
+  CRON_SECRET: ${{ secrets.CRON_SECRET }}
+
+jobs:
+  lock-matchday:
+    # Esegue ogni 15 minuti O quando triggato manualmente con job=all o job=lock-matchday
+    if: >-
+      github.event.schedule == '*/15 * * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'all' || github.event.inputs.job == 'lock-matchday'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lock expired matchdays
+        run: |
+          echo "🔒 Calling lock-matchday endpoint..."
+          response=$(curl -sf -X POST "$APP_URL/api/cron/lock-matchday" \
+               -H "Authorization: Bearer $CRON_SECRET" \
+               -H "Content-Type: application/json")
+          echo "Response: $response"
+
+  auto-score:
+    # Esegue ogni ora alle :00 O quando triggato manualmente con job=all o job=auto-score
+    if: >-
+      github.event.schedule == '0 * * * *' ||
+      (github.event_name == 'workflow_dispatch' && (github.event.inputs.job == 'all' || github.event.inputs.job == 'auto-score'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto calculate scores and close matchday
+        run: |
+          echo "📊 Calling auto-score endpoint..."
+          response=$(curl -sf -X POST "$APP_URL/api/cron/auto-score" \
+               -H "Authorization: Bearer $CRON_SECRET" \
+               -H "Content-Type: application/json")
+          echo "Response: $response"
+

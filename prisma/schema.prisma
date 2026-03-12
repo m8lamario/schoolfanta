@@ -30,6 +30,7 @@ model User {
   school        School?   @relation(fields: [schoolId], references: [id])
   budget        Int       @default(100)
   hasTeam       Boolean   @default(false)
+  isAdmin       Boolean   @default(false)
 
   accounts      Account[]
   sessions      Session[]
