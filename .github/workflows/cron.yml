@@ -33,11 +33,30 @@ jobs:
     steps:
       - name: Lock expired matchdays
         run: |
+          set -euo pipefail
           echo "🔒 Calling lock-matchday endpoint..."
-          response=$(curl -sf -X POST "$APP_URL/api/cron/lock-matchday" \
+
+          if [ -z "${APP_URL:-}" ]; then
+            echo "❌ APP_URL is empty"
+            exit 1
+          fi
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "❌ CRON_SECRET is empty"
+            exit 1
+          fi
+
+          http_code=$(curl -sS -o response.json -w "%{http_code}" -X POST "$APP_URL/api/cron/lock-matchday" \
                -H "Authorization: Bearer $CRON_SECRET" \
                -H "Content-Type: application/json")
-          echo "Response: $response"
+
+          echo "HTTP: $http_code"
+          echo "Body:"
+          cat response.json
+
+          if [ "$http_code" -ge 400 ]; then
+            echo "❌ lock-matchday failed"
+            exit 1
+          fi
 
   auto-score:
     # Esegue ogni ora alle :00 O quando triggato manualmente con job=all o job=auto-score
@@ -48,9 +67,28 @@ jobs:
     steps:
       - name: Auto calculate scores and close matchday
         run: |
+          set -euo pipefail
           echo "📊 Calling auto-score endpoint..."
-          response=$(curl -sf -X POST "$APP_URL/api/cron/auto-score" \
+
+          if [ -z "${APP_URL:-}" ]; then
+            echo "❌ APP_URL is empty"
+            exit 1
+          fi
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "❌ CRON_SECRET is empty"
+            exit 1
+          fi
+
+          http_code=$(curl -sS -o response.json -w "%{http_code}" -X POST "$APP_URL/api/cron/auto-score" \
                -H "Authorization: Bearer $CRON_SECRET" \
                -H "Content-Type: application/json")
-          echo "Response: $response"
+
+          echo "HTTP: $http_code"
+          echo "Body:"
+          cat response.json
+
+          if [ "$http_code" -ge 400 ]; then
+            echo "❌ auto-score failed"
+            exit 1
+          fi
 

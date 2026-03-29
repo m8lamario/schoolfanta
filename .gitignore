@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/.idea/copilotDiffState.xml
+/eslint-report.json
+/.idea/jsLibraryMappings.xml
+/prisma/migrations/20260207172229_init/migration.sql
+/prisma/migrations/20260228184858_add_game_models/migration.sql
+/prisma/migrations/20260310164531_add_match_stadium_events/migration.sql
+/prisma/migrations/20260312184832_add_is_admin/migration.sql

@@ -12,7 +12,10 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: NextRequest) {
   // 1. Autenticazione: solo chi conosce CRON_SECRET può chiamare questa route
   const auth = req.headers.get("Authorization");
-  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  const providedToken = auth?.startsWith("Bearer ") ? auth.slice(7) : null;
+  const expectedSecret = normalizeSecret(process.env.CRON_SECRET);
+
+  if (!providedToken || !expectedSecret || normalizeSecret(providedToken) !== expectedSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -59,4 +62,16 @@ export async function POST(req: NextRequest) {
 
 // Disabilita caching per le route cron
 export const dynamic = "force-dynamic";
+
+function normalizeSecret(value: string | null | undefined): string {
+  const trimmed = (value ?? "").trim();
+  if (!trimmed) return "";
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1).trim();
+  }
+  return trimmed;
+}
 
